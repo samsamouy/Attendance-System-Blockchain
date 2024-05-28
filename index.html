@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance System</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Attendance System</h1>
+        <form id="attendanceForm">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="id">ID:</label>
+                <input type="text" id="id" name="id" required>
+            </div>
+            <div class="form-group">
+                <label for="group">Group Number:</label>
+                <input type="text" id="group" name="group" required>
+            </div>
+            <div class="form-group">
+                <label for="section">Section Number:</label>
+                <input type="text" id="section" name="section" required>
+            </div>
+            <div class="form-group">
+                <label for="lecture">Lecture Number:</label>
+                <input type="text" id="lecture" name="lecture" required>
+            </div>
+            <button type="submit">Mark Attendance</button>
+        </form>
+    </div>
+
+    
+    <script>
+        // Replace with your contract address and ABI
+        const contractAddress = "0xa0Cc7042816D9cae3F1841b3C5F13aa344Df9fE7";
+        const contractABI = [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "participant",
+          "type": "address"
+        }
+      ],
+      "name": "AttendanceMarked",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "attendanceRecords",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "projectManager",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "markAttendance",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "participant",
+          "type": "address"
+        }
+      ],
+      "name": "isParticipantPresent",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ];
+
+        window.addEventListener('load', async () => {
+            // Modern dapp browsers...
+            if (window.ethereum) {
+                window.web3 = new Web3(window.ethereum);
+                try {
+                    // Request account access if needed
+                    await window.ethereum.enable();
+                    // Acccounts now exposed
+                } catch (error) {
+                    // User denied account access...
+                    console.error("User denied account access");
+                }
+            }
+            // Legacy dapp browsers...
+            else if (window.web3) {
+                window.web3 = new Web3(web3.currentProvider);
+                // Acccounts always exposed
+            }
+            // Non-dapp browsers...
+            else {
+                console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
+            }
+        });
+
+        async function markAttendance(event) {
+            event.preventDefault();
+            const contract = new web3.eth.Contract(contractABI, contractAddress);
+            const accounts = await web3.eth.getAccounts();
+            const name = document.getElementById('name').value;
+            const id = document.getElementById('id').value;
+            const group = document.getElementById('group').value;
+            const section = document.getElementById('section').value;
+            const lecture = document.getElementById('lecture').value;
+
+            try {
+                await contract.methods.markAttendance().send({ from: accounts[0] });
+                alert('Attendance marked successfully!');
+                // Clear form fields after successful submission
+                document.getElementById('attendanceForm').reset();
+            } catch (error) {
+                console.error('Error marking attendance:', error);
+                alert('Error marking attendance. Please check the console for details.');
+            }
+        }
+
+        document.getElementById('attendanceForm').addEventListener('submit', markAttendance);
+    </script>
+</body>
+</html>
